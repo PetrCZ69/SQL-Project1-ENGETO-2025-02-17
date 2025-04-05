@@ -1,23 +1,41 @@
 /*
- *  První varianta na spojení tabulek czechia_price a czechia_payrol
+ *  SQL na zprůměrování mezd (industry_branch_code, rok)
  */
 
 SELECT
-	cpc.name AS food_category,
-	cp.value AS food_price,
-	cpib.name AS industry_branch,
-	cpay.value AS avg_wages,
-	cp.region_code,
-	to_char(cp.date_from, 'DD. Month YYYY') AS date_from, 
-	to_char(cp.date_to, 'DD.MM.YY') AS date_to 
-FROM czechia_price cp
-JOIN czechia_payroll cpay
-	ON cpay.payroll_year = date_part('year', cp.date_from)
-JOIN czechia_payroll_industry_branch cpib
-	ON cpay.industry_branch_code = cpib.code
-JOIN czechia_price_category cpc
-	ON cp.category_code = cpc.code
-WHERE cpay.value_type_code = 5958;
+        payroll_year AS year,
+        p.industry_branch_code,
+        ib.name AS industry_branch,
+        ROUND(AVG(p.value::numeric), 2) AS avg_salary
+    FROM czechia_payroll p
+    LEFT JOIN czechia_payroll_industry_branch ib
+        ON p.industry_branch_code = ib.code
+    WHERE
+        p.value_type_code = 5958
+        AND p.calculation_code = 200
+        AND p.unit_code = 200
+    GROUP BY payroll_year, p.industry_branch_code, ib.name
+    ORDER BY p.payroll_year DESC , p.industry_branch_code
+    ;
+
+/*
+ *  SQL dotaz na zprůměrování cen potravin (category_code, rok)
+ */
+
+SELECT 
+		EXTRACT(YEAR FROM p.date_from)::int AS year,
+        p.category_code,
+        cp.name AS category_name,
+        cp.price_value,
+        cp.price_unit,
+        ROUND(AVG(p.value::numeric), 2) AS avg_price
+    FROM czechia_price p
+    JOIN czechia_price_category cp
+        ON p.category_code = cp.code
+    WHERE p.region_code IS NULL AND (EXTRACT(YEAR FROM p.date_from)::int) IN ('2018')
+    GROUP BY EXTRACT(YEAR FROM p.date_from), p.category_code, cp.name, cp.price_value, cp.price_unit
+    ORDER BY YEAR DESC, p.category_code
+    ;
 
 /*
  * Zjištění, zda je země v Evropě
