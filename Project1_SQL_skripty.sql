@@ -17,9 +17,9 @@ WITH salary_annual AS
     LEFT JOIN czechia_payroll_industry_branch ib
         ON p.industry_branch_code = ib.code
     WHERE
-        p.value_type_code = 5958 -- pruměrná hrubá mzda na zaměstnance
-        AND p.calculation_code = 200 -- přepočet na FTE
-        AND p.unit_code = 200  -- mzda vyjádřená v Kč
+        p.value_type_code = 5958 		-- pruměrná hrubá mzda na zaměstnance
+        AND p.calculation_code = 200 	-- přepočet na FTE
+        AND p.unit_code = 200  			-- mzda vyjádřená v Kč
     GROUP BY payroll_year, p.industry_branch_code, ib.name
 ),
 prices_annual AS 
@@ -34,7 +34,7 @@ prices_annual AS
     FROM czechia_price p
     JOIN czechia_price_category cp
         ON p.category_code = cp.code
-    WHERE p.region_code IS NULL -- vynechání krajů a pouze čísla za celou ČR
+    WHERE p.region_code IS NULL 		-- vynechání krajů a pouze čísla za celou ČR
     GROUP BY EXTRACT(YEAR FROM p.date_from), p.category_code, cp.name, cp.price_value, cp.price_unit
 )
 SELECT
@@ -45,16 +45,12 @@ SELECT
     c.price_unit,
     m.industry_branch_code,
     COALESCE(m.industry_branch, 'Celkem odvětví ČR') AS industry_branch_name,
-    c.avg_price, -- průměrná cena potravin v Kč za jednotku (price_value a price_unit)
-    m.avg_salary -- průměrná hrubá mzda na zaměstnance v Kč
+    c.avg_price, 						-- průměrná cena potravin v Kč za jednotku (price_value a price_unit)
+    m.avg_salary 						-- průměrná hrubá mzda na zaměstnance v Kč
 FROM prices_annual c
 INNER JOIN salary_annual m 
 	ON c.year = m.year
 ORDER BY c.YEAR ASC, c.category_code, m.industry_branch_code
-;
-
-SELECT *
-FROM t_petr_oliva_project_sql_primary_final tpo
 ;
 
 /*
@@ -96,10 +92,6 @@ FROM economic_data
 ORDER BY country_code, YEAR DESC
 ;
 
-SELECT *
-FROM t_petr_oliva_project_sql_secondary_final tpos
-;
-
 /*
  *  SQL skript pro odpověď na výzkumnou otázku č. 1 (Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?)
  */
@@ -113,7 +105,7 @@ WITH salary_trend AS
         avg_salary,
         LAG(avg_salary) OVER (PARTITION BY industry_branch_code ORDER BY year) AS salary_prev_year
     FROM t_petr_oliva_project_SQL_primary_final
-    WHERE industry_branch_code IS NOT NULL -- pro jednotlivá odvětví ne pro celou ČR
+    WHERE industry_branch_code IS NOT NULL 				-- pro jednotlivá odvětví ne pro celou ČR
 ),
 salary_changes AS 
 (
@@ -159,7 +151,7 @@ WHERE
     industry_branch_code IS NULL -- vyhodnocuji za celou ČR na za konkrétní odvětví
     AND category_name IN ('Mléko polotučné pasterované', 'Chléb konzumní kmínový') -- vyhodnocuji pro dva druhy potravin
     AND year IN (2006, 2018) -- pro první a poslední rok obsažený v podkladové tabulce
-ORDER BY category_name, YEAR
+ORDER BY category_name, year
 ;
 
 /*
@@ -174,9 +166,9 @@ WITH price_evolution AS
         category_code,
         category_name,
         avg_price,
-        LAG(avg_price) OVER (PARTITION BY category_code ORDER BY year) AS prev_price -- příprava cen pro výpočet meziročních změn cen
+        LAG(avg_price) OVER (PARTITION BY category_code ORDER BY year) AS prev_price -- příprava cen pro výpočet meziročních změn cen potravin
     FROM t_petr_oliva_project_SQL_primary_final
-    WHERE industry_branch_code IS NULL -- pouze pro celou ČR
+    WHERE industry_branch_code IS NULL 												-- pouze pro celou ČR
 ),
 yoy_growth_calc AS 
 (
@@ -186,20 +178,20 @@ yoy_growth_calc AS
         year,
         ROUND(((avg_price - prev_price) / NULLIF(prev_price, 0) * 100)::NUMERIC, 2) AS yoy_growth -- meziroční nárůst ceny pro všechny kategorie potravin a sledované roky
     FROM price_evolution
-    WHERE prev_price IS NOT NULL -- ošetření prvního roku, který není s čím srovnat
+    WHERE prev_price IS NOT NULL 													-- ošetření prvního roku, který není s čím srovnat
 ),
 average_growth AS 
 (
     SELECT
         category_code,
         category_name,
-        ROUND((AVG(yoy_growth))::NUMERIC, 2) AS avg_yoy_growth -- průměrný růst cen za celé sledované období po kategoriích potravin
+        ROUND((AVG(yoy_growth))::NUMERIC, 2) AS avg_yoy_growth 				-- průměrný růst cen za celé sledované období po kategoriích potravin
     FROM yoy_growth_calc
     GROUP BY category_code, category_name
 )
 SELECT *
 FROM average_growth
-ORDER BY avg_yoy_growth ASC -- nedávám omezení na první položku, která zdražuje nejpomaleji, ať je vidět celý seznam potravin
+ORDER BY avg_yoy_growth ASC 					-- nedávám omezení jen na první položku, která zdražuje nejpomaleji, ať je vidět celý seznam potravin
 --LIMIT 1
 ;
 
@@ -213,9 +205,9 @@ WITH national_data AS
     SELECT
         year,
         ROUND((AVG(avg_price))::NUMERIC, 2) AS avg_price,
-        ROUND((AVG(avg_salary))::NUMERIC, 2) AS avg_salary -- jedna hodnota mzdy pro rok, ale kvuli konzistenci takto 
+        ROUND((AVG(avg_salary))::NUMERIC, 2) AS avg_salary 	-- jedna hodnota mzdy pro rok, ale kvuli konzistenci takto 
     FROM t_petr_oliva_project_SQL_primary_final
-    WHERE industry_branch_code IS NULL -- mzdy pro celou ČR
+    WHERE industry_branch_code IS NULL 						-- mzdy pro celou ČR
     GROUP BY year
 ),
 growth_calc AS (
@@ -230,17 +222,17 @@ growth_calc AS (
 growth_diff AS (
     SELECT
         year,
-        ROUND(((avg_price - prev_price) / NULLIF(prev_price, 0) * 100)::NUMERIC, 2) AS price_growth_pct, -- výpočet % změny pro ceny potravin
+        ROUND(((avg_price - prev_price) / NULLIF(prev_price, 0) * 100)::NUMERIC, 2) AS price_growth_pct, 	-- výpočet % změny pro ceny potravin
         ROUND(((avg_salary - prev_salary) / NULLIF(prev_salary, 0) * 100)::NUMERIC, 2) AS salary_growth_pct, --výpočet % změny pro mzdy
         ROUND((((avg_price - prev_price) / NULLIF(prev_price, 0) * 100) - 
-              ((avg_salary - prev_salary) / NULLIF(prev_salary, 0) * 100))::NUMERIC, 2) AS diff_growth_pct --výpočet rozdílu nárůstu cen potravin a mezd
+              ((avg_salary - prev_salary) / NULLIF(prev_salary, 0) * 100))::NUMERIC, 2) AS diff_growth_pct	--výpočet rozdílu nárůstu cen potravin a mezd
     FROM growth_calc
-    WHERE prev_price IS NOT NULL AND prev_salary IS NOT NULL -- ošetření nulové ceny pro dělení
+    WHERE prev_price IS NOT NULL AND prev_salary IS NOT NULL 												-- ošetření nulové ceny pro dělení
 )
 SELECT *
 FROM growth_diff
 -- WHERE diff_growth_pct > 10 -- podmínka pro nárůst cen potravin o více než 10% nad nárůst průměrných mezd, neuplatňuji aby byly vidět hodnoty změn pro jednotlivé sledované roky
-ORDER BY YEAR
+ORDER BY year
 ; 
 
 /*
@@ -285,7 +277,7 @@ cz_growth_base AS
         LAG(gdp) OVER (ORDER BY year) AS prev_gdp,
         LAG(avg_salary) OVER (ORDER BY year) AS prev_salary,
         LAG(avg_price) OVER (ORDER BY year) AS prev_price
-    FROM cz_combined											-- vytvoření základny pro výpočet meziročního růstu sledovaných veličin
+    FROM cz_combined									-- vytvoření základny pro výpočet meziročního růstu sledovaných veličin
 ),
 cz_growth_current AS 
 (
@@ -332,7 +324,7 @@ SELECT
   --  l.price_growth_pct AS price_growth_pct_lag,			-- % meziroční změna cen potravin v t + 1
     l.salary_vs_gdp_growth_lag,							-- poměr růstu mezd k růstu HDP z předchozího roku t + 1
     l.price_vs_gdp_growth_lag							-- poměr růstu cen potravin k růstu HDP z předchozího roku t + 1
-FROM cz_growth_current c
+FROM cz_growth_current c								-- lze odpoznámkovat, pokud bude potřeba vidět i % změny HDP, mezd a cen potravin
 JOIN cz_growth_lagged l ON c.year = l.year				-- výsledný výstup kombinovaně pro porovnání poměrových ukazatelů pro t a t + 1 (následující rok)
-ORDER BY c.YEAR
+ORDER BY c.year
 ;

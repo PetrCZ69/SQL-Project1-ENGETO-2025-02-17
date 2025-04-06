@@ -89,7 +89,7 @@ SELECT
     l.price_vs_gdp_growth_lag
 FROM cz_growth_current c
 JOIN cz_growth_lagged l ON c.year = l.year
-ORDER BY c.YEAR
+ORDER BY c.year
 ; 
 
 
