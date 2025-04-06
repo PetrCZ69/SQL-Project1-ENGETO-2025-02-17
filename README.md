@@ -1,6 +1,7 @@
 
 # Projekt č.1 z SQL 
 **Zpracování projektu č.1 z SQL pro certifikaci ENGETO**
+
 ---
 
 # Zadání projektu
@@ -9,14 +10,18 @@
 2. připravit přehled s parametry HDP (hrubý domácí produkt), GINI koeficient (měření příjmové nebo majetkové nerovnosti v populaci)
 a počet obyvatel v Evropských státech ve stejném období jako přehled pro ČR
 [zdroj dat ČSÚ](https://csu.gov.cz/docs/107508/a7309d97-c5be-4ef4-de2f-d2962e385b93/110079-22dds.htm)
+
 ---
 
 # Cíl projektu
 
-Analyzovat ekonomická a sociální data z tabulek o mzdách, cenách potravin a makroekonomických indikátorech. Odpovědět na 5 konkrétních výzkumných otázek pomocí SQL a prezentovat závěry z datové analýzy.
+**Analyzovat ekonomická a sociální data z tabulek o mzdách, cenách potravin a makroekonomických indikátorech. Odpovědět na 5 konkrétních výzkumných otázek pomocí SQL a prezentovat závěry z datové analýzy.**
+
 Použité tabulky:
-t_petr_oliva_project_SQL_primary_final
-t_petr_oliva_project_SQL_secondary_final
+
+1. t_petr_oliva_project_SQL_primary_final
+2. t_petr_oliva_project_SQL_secondary_final
+
 ---
 
 # Analýza zadání
@@ -27,7 +32,8 @@ t_petr_oliva_project_SQL_secondary_final
 2. číselníky ČR - kraje a okresy
 3. číselníky zemí a ekonomik s parametry jako HDP, GINI index, počet obyvatel, údaje za roky 1960 až 2020
 
-Tyto datové sady reprezentované tabulkami se statistickými daty za určitá datová období je nutné vhodně agregovat tak, aby poskytly podklad pro zodpovězení výzkumných otázek. 
+**Tyto datové sady reprezentované tabulkami se statistickými daty za určitá datová období je nutné vhodně agregovat tak, aby poskytly podklad pro zodpovězení výzkumných otázek.** 
+
 ---
 
 # Analýza podkladových dat (tabulek)
@@ -46,24 +52,28 @@ Analýzou tabulek a přiřazením názvů kategorií z číselníků jsem zjisti
 - číselník czechia_price_category obsahuje kategorie potravin obsahuje názvy potravin, množstevní a měrnou jednotku - 27 záznamů
 - číselník czechia_region obsahuje názvy krajů v ČR - 14 záznamů, pokud je region_code NULL, pak jde o sumární hodnotu pro danou kategorii potraviny (category_code) za celou ČR (ověřeno)
 - hlavní tabulka czechia_price po odfiltrovani NULL hodnot ze sloupce region_code má 101 032 záznamů, tedy 7 217 záznamů se týká pravděpodobně jen celé ČR
-- hlavní tabulka czechia_price ve sloupci value neobsahuje hodnotu  NULL
+- hlavní tabulka czechia_price ve sloupci value neobsahuje hodnotu NULL
 
 ## Tabulky countries, economies
 Analýzou tabulek jsem zjistil, že:
 - v tabulce countries vyberu evropské země přes continent = Europe
 - tabulky countries a economies je možné spojit přes položku country 
 - z tabulky použiji sloupce gdp, gini a population, nicméně pro ostatní země v Evropě nemám k dispozici údaje o cenách potravin a mzdách, tyto údaje pouze pro ČR v tabulkách czechia_price a czechia_payrol
+
 ---
 
 # Příprava podkladových tabulek pro Výzkumné otázky
 **Příprava primární a sekundární tabulky tak, aby z nich na základě SQL dotazů bylo možné zodpovědět definované otázky.**
+
 SQL Skripty jsou uloženy v souboru Project1_SQL_skripty.sql a jsou označeny hlavičkou a logika odkomentována v řádcích, pokud je to potřeba.
 
 ## Primární tabulka t_petr_oliva_project_SQL_primary_final
 Základní datový přehled, který slouží jako primární zdroj pro zodpovězení výzkumných otázek. Obsahuje průměrné roční mzdy a průměrné roční ceny vybraných potravin v České republice, rozdělené podle odvětví a kategorií potravin. 
 
 **Zdroje dat:**
+
 Mzdy: tabuly czechia_payroll + czechia_payroll_industry_branch
+
 Ceny: taulky czechia_price + czechia_price_category
 
 **Filtry:**
@@ -73,10 +83,11 @@ Mzdy
 - calculation_code = 200 – přepočtený počet zaměstnanců (FTE), podle mého názoru více vypovídající, než použití kódu 100 (fyzický počet zaměstnanců)
 - unit_code = 200 – Kč
 
-Agregace po roce payroll_year (přes kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem ČR)
+Agregace po roce payroll_year (přes kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem ČR).
 
 Ceny
 - region_code IS NULL – pouze ceny za celou ČR, kraje nejsou nutné
+
 Agregace po roce (EXTRACT(YEAR FROM date_from)) a po kategoriích potravin category_code
 
 ## Sekundární tabulka t_petr_oliva_project_SQL_secondary_final
@@ -90,6 +101,7 @@ Podpůrný datový přehled, který slouží jako sekundární zdroj pro zodpov�
 Jen evropské státy: continent = 'Europe'
 
 Stejné roky jako v primární tabulce: 2006–2018
+
 ---
 
 # Analýza pro jednotlivé výzkumné otázky
@@ -170,10 +182,11 @@ Interpretace poměrových ukazatelů:
 - pokud price_vs_gdp_growth > 1, pak ceny potravin rostly rychleji než HDP
 - pokud ukazatel < 1, pak růst ukazatele byl pomalejší než HDP
 - pokud ukazatel < 0, pak jeden z ukazatelů klesal, druhý stoupal
+
 ---
 
 # Výsledky (řešení)
-**Uvedeny interpretace výstupů ze specifických SQL dotazů a formulace odpovědi na výzkumnou otázku vč. zdůvodnění, pokud je potřeba.**
+**Uvedeny interpretace výstupů ze specifických SQL dotazů a formulace odpovědi na výzkumné otázky vč. zdůvodnění, pokud je potřeba.**
 
 ## Výzkumné otázky
 
@@ -196,6 +209,7 @@ Interpretace poměrových ukazatelů:
 5. Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo následujícím roce výraznějším růstem?
 
 **Odpověď na tuto otázku se bude týkat pouze České republiky, protože pro ostatní státy Evropy nemáme k dispozici data o cenách potravin a mzdách. Pokud porovnáváme růst HDP vůči růstu mezd a cen potravin ve stejném roce t, pak většinou platí, že pokud roste HDP, rostou i mzdy a ceny potravin. Často rostou mzdy dokonce výrazněji, což podporuje hypotézu pozitivní korelace. Nicméně při porovnání růstu HDP vůči růstu mezd a cen potravin v následujícím roce t+1 (zpožděný efekt růstu HDP na růst cen potravin a mezd), pak většinou nelze najít stejný nebo podobný trend jako u předchozího porovnání. Neexistuje konzistentní zpožděný efekt růstu HDP na růst mezd a cen potravin – spíše lze pozorovat šum, statistickou nestabilitu.**
+
 ---
 
 # Seznam souborů se skripty SQL
