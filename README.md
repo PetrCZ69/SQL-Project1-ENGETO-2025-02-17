@@ -11,9 +11,7 @@
 a počet obyvatel v Evropských státech ve stejném období jako přehled pro ČR
 [zdroj dat ČSÚ](https://csu.gov.cz/docs/107508/a7309d97-c5be-4ef4-de2f-d2962e385b93/110079-22dds.htm)
 
----
-
-# Cíl projektu
+## Cíl projektu
 
 **Analyzovat ekonomická a sociální data z tabulek o mzdách, cenách potravin a makroekonomických indikátorech. Odpovědět na 5 konkrétních výzkumných otázek pomocí SQL a prezentovat závěry z datové analýzy.**
 
@@ -209,8 +207,6 @@ Interpretace poměrových ukazatelů:
 5. Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo následujícím roce výraznějším růstem?
 
 **Odpověď na tuto otázku se bude týkat pouze České republiky, protože pro ostatní státy Evropy nemáme k dispozici data o cenách potravin a mzdách. Pokud porovnáváme růst HDP vůči růstu mezd a cen potravin ve stejném roce t, pak většinou platí, že pokud roste HDP, rostou i mzdy a ceny potravin. Často rostou mzdy dokonce výrazněji, což podporuje hypotézu pozitivní korelace. Nicméně při porovnání růstu HDP vůči růstu mezd a cen potravin v následujícím roce t+1 (zpožděný efekt růstu HDP na růst cen potravin a mezd), pak většinou nelze najít stejný nebo podobný trend jako u předchozího porovnání. Neexistuje konzistentní zpožděný efekt růstu HDP na růst mezd a cen potravin – spíše lze pozorovat šum, statistickou nestabilitu.**
-
----
 
 # Seznam souborů se skripty SQL
 
