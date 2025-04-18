@@ -1,6 +1,7 @@
-# Vyjmutí pracovního souboru se skripty
+# Vyjmutí pracovního souboru a agregovaného se skripty (je nahrazen samostatnými soubory s SQL skripty) 
 
 Working Project1 z SQL ENEGETO.sql
+Project1_SQL_skripty.sql
 
 # Vyjmutí souboru s textem hodnocení projektu
 

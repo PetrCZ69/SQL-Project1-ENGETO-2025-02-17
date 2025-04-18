@@ -5,20 +5,24 @@
 ---
 
 # Zadání projektu
+**Analyzovat ekonomická a sociální data z tabulek o mzdách, cenách potravin a makroekonomických indikátorech. Odpovědět na 5 konkrétních výzkumných otázek pomocí SQL a prezentovat závěry z datové analýzy.**
 
 1. na základě průměrných příjmů za určité časové období posoudit dostupnost základních potravin v ČR
 2. připravit přehled s parametry HDP (hrubý domácí produkt), GINI koeficient (měření příjmové nebo majetkové nerovnosti v populaci) 
 a počet obyvatel v Evropských státech ve stejném období jako přehled pro ČR
 [zdroj dat ČSÚ](https://csu.gov.cz/docs/107508/a7309d97-c5be-4ef4-de2f-d2962e385b93/110079-22dds.htm)
 
-# Cíl projektu
+---
 
-**Analyzovat ekonomická a sociální data z tabulek o mzdách, cenách potravin a makroekonomických indikátorech. Odpovědět na 5 konkrétních výzkumných otázek pomocí SQL a prezentovat závěry z datové analýzy.**
+# Seznam souborů se skripty SQL
 
-Použité tabulky:
-
-1. t_petr_oliva_project_SQL_primary_final
-2. t_petr_oliva_project_SQL_secondary_final
+- SQL_primary_table.sql - skript pro vytvoření tabulky t_petr_oliva_project_SQL_primary_final jako podklad pro vyhodnocování odpovědí na výzkumné otázky
+- SQL_secondary_table.sql - skript pro vytvoření tabulky t_petr_oliva_project_SQL_secondary_final jako podklad pro vyhodnocování odpovědí na výzkumné otázky
+- SQL_VO1.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.1
+- SQL_VO2.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.2
+- SQL_VO3.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.3
+- SQL_VO4.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.4
+- SQL-VO5.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.5
 
 ---
 
@@ -61,13 +65,14 @@ Analýzou tabulek jsem zjistil, že:
 
 ---
 
-# Příprava podkladových tabulek pro Výzkumné otázky
+# Příprava podkladových tabulek pro výzkumné otázky
 **Příprava primární a sekundární tabulky tak, aby z nich na základě SQL dotazů bylo možné zodpovědět definované otázky.**
 
-SQL Skripty jsou uloženy v souboru Project1_SQL_skripty.sql a jsou označeny hlavičkou a logika odkomentována v řádcích, pokud je to potřeba.
+SQL skripty jsou uloženy v souborech a jsou označeny hlavičkou a logika odkomentována v řádcích, pokud je to potřeba.
 
 ## Primární tabulka t_petr_oliva_project_SQL_primary_final
 Základní datový přehled, který slouží jako primární zdroj pro zodpovězení výzkumných otázek. Obsahuje průměrné roční mzdy a průměrné roční ceny vybraných potravin v České republice, rozdělené podle odvětví a kategorií potravin. 
+Tabulka se vytvoří pomocí skriptu uloženého v souboru **SQL_primary_table.sql**
 
 **Zdroje dat:**
 
@@ -82,16 +87,18 @@ Mzdy
 - calculation_code = 200 – přepočtený počet zaměstnanců (FTE), podle mého názoru více vypovídající, než použití kódu 100 (fyzický počet zaměstnanců)
 - unit_code = 200 – Kč
 
-Agregace po roce payroll_year (přes kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem ČR).
+Agregace po roce payroll_year (přes kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem za odvětví ČR).
 
 Ceny
 - region_code IS NULL – pouze ceny za celou ČR, kraje nejsou nutné, protože s nimi nebudeme pracovat v žádné výzkumné otázce
 
 Agregace pro novou tabulku po roce (EXTRACT(YEAR FROM date_from)) a po kategoriích potravin category_code
 
-## Sekundární tabulka t_petr_oliva_project_SQL_secondary_final
+Celkem 6 840 záznamů.
 
+## Sekundární tabulka t_petr_oliva_project_SQL_secondary_final
 Podpůrný datový přehled, který slouží jako sekundární zdroj pro zodpovězení výzkumných otázek. Obsahuje roční GDP, GINI a počet obyvatel pouze pro státy z Evropy.
+Tabulka se vytvoří pomocí skriptu uloženého v souboru **SQL_secondary_table.sql**
 
 **Zdroje dat:** tabulky economies a countries
 
@@ -101,6 +108,8 @@ Jen evropské státy: continent = 'Europe'
 
 Stejné roky jako v primární tabulce: 2006–2018
 
+Celkem 585 záznamů.
+
 ---
 
 # Analýza problematiky pro jednotlivé výzkumné otázky
@@ -108,6 +117,7 @@ Stejné roky jako v primární tabulce: 2006–2018
 
 ## Výzkumná otázka č. 1
 **Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?**
+Výstup pro odpověď se vytvoří pomocí skriptu uloženého v souboru **SQL_VO1.sql**
 
 Pro každé odvětví potřebuji zjistit:
 - jak se průměrná roční mzda vyvíjí v čase
@@ -116,28 +126,31 @@ Pro každé odvětví potřebuji zjistit:
 Postup:
 - vyberu pouze řádky s IS NOT NULL pro jednotlivá odvětví, protože industry_branch_code IS NULL = průměrná mzda za celou ČR 
 - pro každé odvětví (industry_branch_code) a rok (year) vyhodnocuji avg_salary (průměrnou mzdu)
-- funkce LAG() pro hodnotu mzdy v předchozím roce
+- využiji funkci LAG() pro hodnotu průměrné mzdy po odvětvích v předchozím roce
 
 Spočítám:
 - absolutní rozdíl mezd pro t a t-1 jako salary_diff
-- nastavím flag pro meziroční pokles mzdy (true/false)
+- nastavím flag pro meziroční pokles mzdy (TRUE/FALSE) - TRUE pro rozdíl je záporná hodnota
 
 Na základě toho pak pro každé odvětví:
-- spočítám počet výskytů, kdy mzda poklesla (flag = true) - years_with_salary_decline
+- spočítám počet výskytů, kdy mzda poklesla (flag = TRUE) - years_with_salary_decline
 - pokud došlo alespoň k jednomu meziročnímu poklesu, zobrazím počáteční a koncový rok, kdy k meziročnímu poklesu došlo - first_decline_year, last_decline_year
 
 ## Výzkumná otázka č. 2
 **Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?**
+Výstup pro odpověď se vytvoří pomocí skriptu uloženého v souboru **SQL_VO2.sql**
 
 Pro první a poslední společný rok (2006 a 2018) potřebuji zjistit pro definované potraviny (Mléko polotučné pasterované a Chléb konzumní kmínový) kupní sílu průměrné hrubé mzdy v ČR (za všechna odvětví).
 
 Postup:
-- vyfiltruji pouze řádky industry_branch_code IS NULL (mzda za celou ČR) a category_name pro chleba a mléko (výběr dvou konkrétních potravin) pro year 2006 a 2018 (první a poslední společný rok)
+- zjistím si první a poslední rok v sadě podkladových dat
+- vyfiltruji pouze řádky industry_branch_code IS NULL (mzda za celou ČR) a category_name pro chleba a mléko (výběr dvou konkrétních potravin) pro první a poslední společný rok
 - vypočítám kupní sílu jako: purchasable_units = avg_salary / avg_price (průměrná mzda/průměrná cena potraviny)
 - seřadím výstup podle názvu potraviny a roku
 
 ## Výzkumná otázka č. 3
 **Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?**
+Výstup pro odpověď se vytvoří pomocí skriptu uloženého v souboru **SQL_VO3.sql**
 
 Potřebuji seřadit kategorie potravin podle nejnižšího průměrného meziročního nárůstu cen (%) na základě výpočtu meziroční změny z avg_price a tyto meziroční změny pak zprůměrovat za celé sledované období pro každou kategorii potravin.
 
@@ -145,10 +158,11 @@ Postup:
 - vyfiltruji pouze záznamy za celou ČR - industry_branch_code IS NULL
 - přes funkci LAG() spočítám meziroční % změnu ceny yoy_growth = (avg_price - prev_price) / prev_price * 100 pro každou kategorii (category_code) a rok
 - spočítám průměrné meziroční tempo změny ceny pro každou kategorii potravin za celé sledované období
-- seřadím podle nejnižší hodnoty
+- seřadím od nejnižší hodnoty a zobrazím pouze kategorii s nejnižším nárůstem
 
 ## Výzkumná otázka č. 4
 **Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?**
+Výstup pro odpověď se vytvoří pomocí skriptu uloženého v souboru **SQL_VO4.sql**
 
 Potřebuji zjistit, zda v některém roce byl růst cen výrazně vyšší než růst mezd. „Výrazně“ znamená rozdíl > 10 procentních bodů. Analyzuji na agregované úrovni za celou ČR (průměrná cena všech potravin a průměrná hrubá mzda za celou ČR).
 
@@ -157,10 +171,11 @@ Postup:
 - spočítám za každý rok avg_price = průměrná roční cena potravin (přes všechny kategorie) a avg_salary = průměrná roční mzda
 - přes funkci LAG() spočítám meziroční price_growth_pct (% změna průměrné ceny potravin) a salary_growth_pct (% změna průměrné mzdy)
 - spočítám rozdíl mezi % meziročními změnami průměrné ceny potravin a mezd diff_growth_pct = price_growth_pct - salary_growth_pct
-- seřadím po letech a vyfiltruji na rozdíl větší než 10
+- seřadím po letech a vyfiltruji na rozdíl větší než 0 a hledám rok(y), kde je rozdíl větší než +10
 
 ## Výzkumná otázka č. 5
 **Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo následujícím roce výraznějším růstem?**
+Výstup pro odpověď se vytvoří pomocí skriptu uloženého v souboru **SQL_VO5.sql**
 
 Potřebuji zjistit na základě dat pro Českou republiku (CZE) a vzájemně porovnat:
 - růst HDP vs. růst mezd a cen ve stejném roce (t)
@@ -185,7 +200,7 @@ Interpretace poměrových ukazatelů:
 ---
 
 # Výsledky (řešení)
-**V této části jsou Uvedeny interpretace výstupů ze specifických SQL skriptů pro každou výzkumnou otázku a připravena formulace odpovědi na výzkumné otázky vč. zdůvodnění, pokud je to potřeba.**
+**V této části jsou uvedeny interpretace výstupů ze specifických SQL skriptů pro každou výzkumnou otázku a připravena formulace odpovědi na výzkumné otázky vč. zdůvodnění, pokud je to potřeba.**
 
 ## Výzkumné otázky
 
@@ -203,19 +218,10 @@ Interpretace poměrových ukazatelů:
 
 4. Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
 
-**V žádném, ze sledovaných let 2006 - 2018 nedošlo k výraznému meziročnímu růstu cen potravin nad růst mezd. Nejvyšší nárůst cen potravin oproti růstu mezd byl v roce 2013 a to o 5,23%. 10% a vyššího nárůstu nebylo dosaženo v žádném roku sledovaného období.** 
+**V žádném, ze sledovaných let 2006 - 2018 nedošlo k výraznému meziročnímu růstu cen potravin nad růst mezd. Nejvyšší nárůst cen potravin oproti růstu mezd byl v roce 2013 a to o 5,23%. 10% a vyššího nárůstu nebylo dosaženo v žádném jiném roku sledovaného období.** 
 
 5. Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo následujícím roce výraznějším růstem?
 
 **Odpověď na tuto otázku se bude týkat pouze České republiky, protože pro ostatní státy Evropy nemáme k dispozici data o cenách potravin a mzdách. Pokud porovnáváme růst HDP vůči růstu mezd a cen potravin ve stejném roce t, pak většinou platí, že pokud roste HDP, rostou i mzdy a ceny potravin. Často rostou mzdy dokonce výrazněji, což podporuje hypotézu pozitivní korelace mezi růstem HDP a mzdami/cenami potravin. Nicméně při porovnání růstu HDP vůči růstu mezd a cen potravin v následujícím roce t+1 (zpožděný efekt růstu HDP na růst cen potravin a mezd), pak většinou nelze najít stejný nebo podobný trend jako u předchozího porovnání. Neexistuje konzistentní zpožděný efekt růstu HDP na růst mezd a cen potravin – spíše lze pozorovat šum, statistickou nestabilitu.**
-
-# Seznam souborů se skripty SQL
-
-- Working Project1 z SQL ENGETO.sql -> pracovní soubor se skripty SQL pro analýzu a ověření struktury dat tabulek a číselníků, sestavování finálních SQL skriptů
-- Project1_SQL_skripty.sql -> soubor se skripty pro vytvoření primární a sekundární tabulky pro výzkumné otázky a pro SQL skripty jednotlivých výzkumných otázek.
-
--- skript po vytvoření primární tabulky t_petr_oliva_project_SQL_primary_final
--- skript po vytvoření sekundární tabulky t_petr_oliva_project_SQL_secondary_final
--- SQL skripty pro zodpovězení Výzkumných dotazů 1 až 5
 
 ---
