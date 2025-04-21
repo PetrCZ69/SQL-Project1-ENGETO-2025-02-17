@@ -18,11 +18,11 @@ a počet obyvatel v Evropských státech ve stejném období jako přehled pro �
 
 - SQL_primary_table.sql - skript pro vytvoření tabulky t_petr_oliva_project_SQL_primary_final jako podklad pro vyhodnocování odpovědí na výzkumné otázky
 - SQL_secondary_table.sql - skript pro vytvoření tabulky t_petr_oliva_project_SQL_secondary_final jako podklad pro vyhodnocování odpovědí na výzkumné otázky
-- SQL_VO1.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.1
-- SQL_VO2.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.2
-- SQL_VO3.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.3
-- SQL_VO4.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.4
-- SQL-VO5.sql - skript pro vytvoření tabulky pro odpověď na výzkumnou otázku č.5
+- SQL_VO1.sql - skript pro generování výstupu pro odpověď na výzkumnou otázku č.1
+- SQL_VO2.sql - skript pro generování výstupu pro odpověď na výzkumnou otázku č.2
+- SQL_VO3.sql - skript pro generování výstupu pro odpověď na výzkumnou otázku č.3
+- SQL_VO4.sql - skript pro generování výstupu pro odpověď na výzkumnou otázku č.4
+- SQL-VO5.sql - skript pro generování výstupu pro odpověď na výzkumnou otázku č.5
 
 ---
 
@@ -30,7 +30,7 @@ a počet obyvatel v Evropských státech ve stejném období jako přehled pro �
 **Mám k dispozici 3 datové sady.**
 
 1. a. průměrné mzdy a průměrný počet zaměstnaných osob v odvětvích (19 odvětví) v ČR za roky 2000 až 2021 po kvartálech (2021 pouze první 2 kvartály) - 6 880 záznamů
-1. b. ceník potravin v ČR od ledna 2006 do prosince 2018 (vždy pro měření od - do jako timestamp) - 108 249 záznamů
+1. b. ceník potravin v ČR od ledna 2006 do prosince 2018 (vždy pro měření od - do jako časové razítko) - 108 249 záznamů
 2. číselníky ČR - kraje a okresy
 3. číselníky zemí a ekonomik s parametry jako HDP, GINI index, počet obyvatel, údaje jsou za roky 1960 až 2020
 
@@ -87,7 +87,7 @@ Mzdy
 - calculation_code = 200 – přepočtený počet zaměstnanců (FTE), podle mého názoru více vypovídající, než použití kódu 100 (fyzický počet zaměstnanců)
 - unit_code = 200 – Kč
 
-Agregace po roce payroll_year (přes kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem za odvětví ČR).
+Agregace po roce payroll_year (přes jednotlivé kvartály) a po odvětvích včetně industry_branch_code IS NULL (Celkem za odvětví ČR).
 
 Ceny
 - region_code IS NULL – pouze ceny za celou ČR, kraje nejsou nutné, protože s nimi nebudeme pracovat v žádné výzkumné otázce
@@ -200,7 +200,7 @@ Interpretace poměrových ukazatelů:
 ---
 
 # Výsledky (řešení)
-**V této části jsou uvedeny interpretace výstupů ze specifických SQL skriptů pro každou výzkumnou otázku a připravena formulace odpovědi na výzkumné otázky vč. zdůvodnění, pokud je to potřeba.**
+**V této části jsou uvedeny interpretace výstupů ze specifických SQL skriptů zvlášť pro každou výzkumnou otázku a připravena formulace odpovědi na výzkumné otázky vč. zdůvodnění, pokud je to potřeba.**
 
 ## Výzkumné otázky
 
