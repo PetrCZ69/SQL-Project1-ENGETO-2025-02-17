@@ -2,16 +2,19 @@
  *  Vytvoření sekundární tabulky pro SQL z výzkumných otázek
  */
 
+DROP TABLE t_petr_oliva_project_SQL_secondary_final
+;
+
 CREATE TABLE t_petr_oliva_project_SQL_secondary_final AS
 WITH european_states AS 
 (
     SELECT country
     FROM countries
-    WHERE continent = 'Europe'
+    WHERE continent = 'Europe' -- pouze státy z Evropy
 ),
 years_range AS 
 (
-    SELECT DISTINCT year
+    SELECT DISTINCT YEAR -- pouze roky z primární tabulky
     FROM t_petr_oliva_project_SQL_primary_final
 ),
 economic_data AS 
